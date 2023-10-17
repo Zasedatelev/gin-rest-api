@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -9,9 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func All_players(c *gin.Context) {
-	var store *store.Store = &store.Store{}
-	rows, err := store.DataBase.Query("Select * From players")
+type Handler struct {
+	DB *store.Store
+}
+
+func (h *Handler) AllPlayers(c *gin.Context) {
+	rows, err := h.DB.DataBase.Query("Select * From players")
 	if err != nil {
 		panic(err)
 	}
@@ -23,14 +27,36 @@ func All_players(c *gin.Context) {
 		pl := models.Player{}
 		err := rows.Scan(&pl.Player_id, &pl.First_name, &pl.Last_name, &pl.Nickname, &pl.Citizenship, &pl.Dob, &pl.Role)
 		if err != nil {
-			fmt.Println("хуня 7 а не 6")
+			fmt.Println(sql.ErrNoRows)
 			continue
 		}
 		players = append(players, pl)
 	}
 
-	for _, player := range players {
-		c.JSON(http.StatusOK, player)
+	c.IndentedJSON(http.StatusOK, players)
+
+}
+
+func (h *Handler) AllGames(c *gin.Context) {
+	rows, err := h.DB.DataBase.Query("Select * From games")
+	if err != nil {
+		panic(err)
 	}
+
+	defer rows.Close()
+
+	games := []models.Game{}
+
+	for rows.Next() {
+		game := models.Game{}
+		err := rows.Scan(&game.Game_id, &game.Team, &game.City, &game.Goals, &game.Game_date, &game.Own)
+		if err != nil {
+			fmt.Println(sql.ErrNoRows)
+			continue
+		}
+		games = append(games, game)
+	}
+
+	c.IndentedJSON(http.StatusOK, games)
 
 }

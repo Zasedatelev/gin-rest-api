@@ -1,28 +1,20 @@
 package store
 
-import (
-	"database/sql"
-	"fmt"
-)
+import "database/sql"
 
 type Store struct {
 	DataBase *sql.DB
 }
 
-// func New(s *Store) *Store {
-// 	return &Store{}
-// }
-
-func (s *Store) OpenConnect() {
-	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres password=260616 dbname=football_database sslmode=disable")
+func (s *Store) Open() error {
+	db, err := sql.Open("postgres", "user=postgres password=260616 dbname=go_test sslmode=disable")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := db.Ping(); err != nil {
-		fmt.Println(err)
+		return err
 	}
-
 	s.DataBase = db
-
+	return nil
 }
