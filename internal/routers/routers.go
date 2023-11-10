@@ -1,28 +1,44 @@
 package routers
 
 import (
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/handlers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/store"
+	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth"
+	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/handlers"
 	"github.com/gin-gonic/gin"
 )
 
-type Routers struct {
-	router *gin.Engine
+type GameRouteController struct {
+	GameHandler handlers.GameHandler
 }
 
-func InitRouters(s *store.Store) {
-	handler := handlers.Handler{
-		DB: s,
-	}
-	router := gin.Default()
+func NewGameRouteController(GameHandler handlers.GameHandler) GameRouteController {
+	return GameRouteController{GameHandler}
+}
 
-	v1 := router.Group("v1/")
+type AuthRouteController struct {
+	AuthController auth.AuthHandler
+}
+
+func NewAuthRouteController(AuthController auth.AuthHandler) AuthRouteController {
+	return AuthRouteController{AuthController}
+}
+
+// группа путей для предсатвления данный о играх
+func (r *GameRouteController) InitGameRouters(gr *gin.RouterGroup) {
+
+	v1 := gr.Group("/games")
 	{
-		v1.GET("/all_players", handler.AllPlayers)
-		v1.GET("/all_games", handler.AllGames)
-		v1.GET("/results_games/:nickname", handler.ResultGames)
+		v1.GET("/all_players", r.GameHandler.AllPlayers)
+		v1.GET("/all_games", r.GameHandler.AllGames)
+		v1.GET("/results_games/:nickname", r.GameHandler.ResultGames)
 
 	}
 
-	router.Run()
+}
+
+// группа путей для регистрации и авторизации
+func (a *AuthRouteController) InitAuthRouters(gr *gin.RouterGroup) {
+	auth := gr.Group("/auth")
+	{
+		auth.POST("/register", a.AuthController.RegistrUser)
+	}
 }
