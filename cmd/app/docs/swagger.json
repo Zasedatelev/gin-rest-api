@@ -1,0 +1,14 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Привет. Мой не большой проект для изучения програмирования API на Go.",
+        "title": "Test Golang API",
+        "contact": {
+            "name": "Oleg Zasedatelev"
+        },
+        "version": "1.20"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {}
+}

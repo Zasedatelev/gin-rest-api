@@ -1,0 +1,10 @@
+basePath: /api
+host: localhost:8080
+info:
+  contact:
+    name: Oleg Zasedatelev
+  description: Привет. Мой не большой проект для изучения програмирования API на Go.
+  title: Test Golang API
+  version: "1.20"
+paths: {}
+swagger: "2.0"

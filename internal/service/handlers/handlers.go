@@ -17,6 +17,16 @@ type GameHandler struct {
 func NewGameHandler(DB *repository.Repository) GameHandler {
 	return GameHandler{DB}
 }
+
+// @Summary      Get all players
+// @Tags         games
+// @Accept       json
+// @Produce      json
+// @Success      200  {integer} integer 1
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /games/all_players [get]
 func (h *GameHandler) AllPlayers(c *gin.Context) {
 	// TODO: выводит данные о всех игроках
 	rows, err := h.DB.DataBase.Query("Select * From players")
@@ -41,6 +51,15 @@ func (h *GameHandler) AllPlayers(c *gin.Context) {
 
 }
 
+// @Summary      Get all games
+// @Tags         games
+// @Accept       json
+// @Produce      json
+// @Success      200  {integer} integer 1
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /games/all_games [get]
 func (h *GameHandler) AllGames(c *gin.Context) {
 	// TODO: выводит данные о всех игроках
 	rows, err := h.DB.DataBase.Query("Select * From games")
@@ -66,6 +85,17 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 
 }
 
+// @Summary      get games involving the player
+// @Description  get list by nicname
+// @Tags         games
+// @Accept       json
+// @Produce      json
+// @Param        input  body string  true  "Player nickname"
+// @Success      200  {integer} integer 1
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /games/all_players [get]
 func (h *GameHandler) ResultGames(c *gin.Context) {
 	// TODO: выводит данные о всех игроках
 	nickname := c.Param("nickname")
