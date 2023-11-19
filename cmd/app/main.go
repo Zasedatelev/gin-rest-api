@@ -1,16 +1,13 @@
 package main
 
 import (
-	"github.com/Oleg-OMON/gin-rest-api.git/cmd/app/docs"
 	_ "github.com/Oleg-OMON/gin-rest-api.git/cmd/app/docs"
+	"github.com/Oleg-OMON/gin-rest-api.git/internal/handlers"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/routers"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth/auth_handlers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/handlers"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var server *gin.Engine
@@ -36,10 +33,10 @@ func main() {
 	AuthRoutrer := routers.NewAuthRouteController(AuthHandler)
 
 	server = gin.Default()
-	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	// server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router := server.Group("/api")
 
-	docs.SwaggerInfo.BasePath = "/api"
+	// docs.SwaggerInfo.BasePath = "/api"
 
 	GameRouter.InitGameRouters(router)
 	AuthRoutrer.InitAuthRouters(router)

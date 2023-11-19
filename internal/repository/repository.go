@@ -1,13 +1,15 @@
 package repository
 
-import "database/sql"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 type Repository struct {
-	DataBase *sql.DB
+	DataBase *sqlx.DB
 }
 
 func (s *Repository) Open() error {
-	db, err := sql.Open("postgres", "user=postgres password=260616 dbname=go_test sslmode=disable")
+	db, err := sqlx.Connect("postgres", "user=postgres password=260616 dbname=go_test sslmode=disable")
 	if err != nil {
 		return err
 	}

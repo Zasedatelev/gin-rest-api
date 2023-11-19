@@ -1,8 +1,8 @@
 package routers
 
 import (
+	"github.com/Oleg-OMON/gin-rest-api.git/internal/handlers"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth/auth_handlers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/handlers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +29,7 @@ func (r *GameRouteController) InitGameRouters(gr *gin.RouterGroup) {
 	v1.GET("/all_players", r.GameHandler.AllPlayers)
 	v1.GET("/all_games", r.GameHandler.AllGames)
 	v1.GET("/results_games/:nickname", r.GameHandler.ResultGames)
+	v1.GET("/get_player/:nickname", r.GameHandler.GetPlayer)
 
 }
 
