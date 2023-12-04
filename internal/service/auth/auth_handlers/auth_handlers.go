@@ -6,7 +6,9 @@ import (
 
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
+	"github.com/Oleg-OMON/gin-rest-api.git/internal/utils"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 type AuthHandler struct {
@@ -24,13 +26,65 @@ func (a *AuthHandler) RegistrUser(c *gin.Context) {
 		return
 	}
 
-	addQuery := `INSERT INTRO users (name, email, password) VALUES (1$, 2$, 3$)`
-	_, err := a.DB.DataBase.Exec(addQuery, payload.Name, strings.ToLower(payload.Email), payload.Password)
-
-	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"message": "User with that email already exists"})
+	if payload.Password != payload.PasswordConfirm {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Passwords do not match"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User added"})
+	addQuery := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`
+
+	stmt, err := a.DB.DataBase.Prepare(addQuery)
+	if err != nil {
+		log.Debug(err)
+	}
+	defer stmt.Close()
+
+	hashPass, err := utils.HashPassword(payload.Password)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": err.Error()})
+		return
+	}
+
+	result, err := stmt.Exec(payload.Name, strings.ToLower(payload.Email), hashPass)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusConflict, gin.H{"message": err})
+		return
+	}
+	rowId, err := result.LastInsertId()
+
+	c.JSON(http.StatusCreated, gin.H{"lastId": rowId, "massege": "New user account registered"})
+}
+
+func (a *AuthHandler) Login(c *gin.Context) {
+	payload := models.SingInInput{}
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	user := models.User{}
+
+	err := a.DB.DataBase.Get(&user, `SELECT * FROM users WHERE name = $1`, payload.Name)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or Password"})
+		return
+	}
+
+	if err := utils.VerifyPassword(user.Password, payload.Password); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Password"})
+		return
+	}
+
+	token, err := utils.GenerateToken(60, user.ID, "jwt-token-secret")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.SetCookie("token", token, 60, "/", "localhost", false, true)
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "token": token})
 }

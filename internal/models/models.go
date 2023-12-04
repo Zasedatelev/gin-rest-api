@@ -34,13 +34,13 @@ func (s MyNullFloat64) MarshalJSON() ([]byte, error) {
 }
 
 type Player struct {
-	PlayerId    string       `json: "player_id"`
-	FirstName   string       `json: "first_name"`
-	LastName    string       `json: "last_name"`
-	Nickname    string       `json: "nickname"`
-	Citizenship MyNullString `json: "citizenship"`
-	Dob         string       `json: "dob"`
-	Role        string       `json: "role"`
+	PlayerId    int          `json: "player_id" db:"player_id"`
+	FirstName   string       `json: "first_name" db:"first_name"`
+	LastName    string       `json: "last_name" db:"last_name"`
+	Nickname    string       `json: "nickname" db:"nickname"`
+	Citizenship MyNullString `json: "citizenship" db:"citizenship"`
+	Dob         string       `json: "dob" db:"dob"`
+	Role        string       `json: "role" db:"role"`
 }
 
 type Game struct {
@@ -73,20 +73,20 @@ type ResultModelsPlayerLineup struct {
 }
 
 type User struct {
-	ID       uuid.UUID `json: "id"`
+	ID       uuid.UUID `json: "id" gorm:"default:uuid_generate_v4()"`
 	Name     string    `json: "name"`
 	Email    string    `json: "email"`
 	Password string    `json: "password"`
 }
 
 type SingUpInput struct {
-	Name            string `json:"name" binding:"required"`
-	Email           string `json:"email" binding:"required"`
-	Password        string `json:"password" binding:"required,min=8"`
-	PasswordConfirm string `json:"passwordConfirm" binding:"required"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	PasswordConfirm string `json:"passwordConfirm"`
 }
 
 type SingInInput struct {
-	Name     string `json:"name" binding:"required"`
-	Password string `json:"password"  binding:"required"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }

@@ -3,12 +3,12 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 type GameHandler struct {
@@ -36,17 +36,16 @@ func (h *GameHandler) AllPlayers(c *gin.Context) {
 	}
 	data, err := stmt.Queryx()
 	if err != nil {
-		panic(err)
+		log.Debug(err)
 	}
 	defer data.Close()
 
 	players := []models.Player{}
-
 	for data.Next() {
 		pl := models.Player{}
 		err := data.Scan(&pl.PlayerId, &pl.FirstName, &pl.LastName, &pl.Nickname, &pl.Citizenship, &pl.Dob, &pl.Role)
 		if err != nil {
-			fmt.Println(sql.ErrNoRows)
+			log.Debug(sql.ErrNoRows)
 			continue
 		}
 		players = append(players, pl)
@@ -107,29 +106,25 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 func (h *GameHandler) ResultGames(c *gin.Context) {
 	// TODO: выводит об играх футболиста, по его nickname
 	nickname := c.Param("nickname")
-	stmt, err := h.DB.DataBase.Preparex(`SELECT p.nickname, g.team, c.start, c.time_in, c.goals, c.cards FROM lineups c, players p, games g  WHERE c.player_id = p.player_id AND c.game_id = g.game_id AND p.nickname = 1$`)
-
+	rows, err := h.DB.DataBase.Query(`SELECT p.nickname, g.team, c.start, c.time_in, c.goals, c.cards FROM lineups c, players p, games g  WHERE c.player_id = p.player_id AND c.game_id = g.game_id AND p.nickname = $1`, nickname)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	data, err := stmt.Queryx(nickname)
-	if err != nil {
-		panic(err)
-	}
-	defer data.Close()
+	defer rows.Close()
 
 	results := []models.ResultModelsPlayerLineup{}
 
-	for data.Next() {
+	for rows.Next() {
 		r := models.ResultModelsPlayerLineup{}
-		err := data.StructScan(&r)
+		err := rows.Scan(&r.Nickname, &r.Team, &r.Start, &r.TimeIn, &r.Goals, &r.Cards)
 		if err != nil {
 			fmt.Println(sql.ErrNoRows)
 			continue
 		}
 		results = append(results, r)
 	}
+	log.Info(results)
 	c.IndentedJSON(http.StatusOK, results)
 
 }
@@ -137,19 +132,24 @@ func (h *GameHandler) ResultGames(c *gin.Context) {
 func (h *GameHandler) GetPlayer(c *gin.Context) {
 	// вывод данных о игроке
 	nickname := c.Param("nickname")
-	stmt, err := h.DB.DataBase.Preparex("SELECT * FROM players WHERE nickname = $1")
-
+	stmt, err := h.DB.DataBase.Preparex(`SELECT * FROM players WHERE nickname = $1`)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer stmt.Close()
 
-	var player models.Player
-	err = stmt.Get(&player, nickname)
-	if err != nil {
-		fmt.Println(sql.ErrNoRows)
-	}
+	result := []models.Player{}
+	rows, err := stmt.Queryx(nickname)
+	for rows.Next() {
+		player := models.Player{}
+		err = rows.Scan(&player.PlayerId, &player.FirstName, &player.LastName, &player.Nickname, &player.Citizenship, &player.Dob, &player.Role)
+		if err != nil {
+			log.Debug(sql.ErrNoRows)
+		}
 
-	c.IndentedJSON(http.StatusOK, player)
+		result = append(result, player)
+	}
+	//
+
+	c.IndentedJSON(http.StatusOK, result)
 }

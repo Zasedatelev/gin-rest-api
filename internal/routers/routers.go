@@ -24,6 +24,7 @@ func NewAuthRouteController(AuthController auth_handlers.AuthHandler) AuthRouteC
 
 // группа путей для предсатвления данный о играх
 func (r *GameRouteController) InitGameRouters(gr *gin.RouterGroup) {
+
 	v1 := gr.Group("/games")
 
 	v1.GET("/all_players", r.GameHandler.AllPlayers)
@@ -38,5 +39,6 @@ func (a *AuthRouteController) InitAuthRouters(gr *gin.RouterGroup) {
 	auth := gr.Group("/auth")
 	{
 		auth.POST("/register", a.AuthController.RegistrUser)
+		auth.POST("/login", a.AuthController.Login)
 	}
 }
