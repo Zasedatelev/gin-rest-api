@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Oleg-OMON/gin-rest-api.git/config"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/utils"
@@ -58,6 +59,7 @@ func (a *AuthHandler) RegistrUser(c *gin.Context) {
 
 func (a *AuthHandler) Login(c *gin.Context) {
 	payload := models.SingInInput{}
+	config := config.LoadConfig()
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -78,7 +80,7 @@ func (a *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(60, user.ID, "jwt-token-secret")
+	token, err := utils.GenerateToken(config.JWT.AccessTokenExpireDuration, user.ID, config.JWT.Secret)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

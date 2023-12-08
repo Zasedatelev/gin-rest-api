@@ -28,7 +28,7 @@ func NewGameHandler(DB *repository.Repository) GameHandler {
 // @Failure      404  {object}  httputil.HTTPError
 // @Failure      500  {object}  httputil.HTTPError
 // @Router       /games/all_players [get]
-func (h *GameHandler) AllPlayers(c *gin.Context) {
+func (h *GameHandler) GetAllPlayers(c *gin.Context) {
 	// TODO: выводит данные о всех игроках
 	stmt, err := h.DB.DataBase.Preparex("Select * From players")
 	if err != nil {
@@ -149,7 +149,6 @@ func (h *GameHandler) GetPlayer(c *gin.Context) {
 
 		result = append(result, player)
 	}
-	//
 
 	c.IndentedJSON(http.StatusOK, result)
 }

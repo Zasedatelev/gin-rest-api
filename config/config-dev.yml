@@ -1,0 +1,14 @@
+postgres:
+  user: "postgres"
+  password: "260616"
+  dbName: "go_test"
+  sslMode: "disable"
+
+server:
+  internalPort: 8080
+
+jwt:
+  secret: "jwt-token-secret"
+  refreshSecret: "mySecretKey"
+  accessTokenExpireDuration: 1440m
+  refreshTokenExpireDuration: 60m
