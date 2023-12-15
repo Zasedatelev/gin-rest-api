@@ -19,15 +19,13 @@ func NewGameHandler(DB *repository.Repository) GameHandler {
 	return GameHandler{DB}
 }
 
+// GetAllPlayers godoc
 // @Summary      Get all players
 // @Tags         games
 // @Accept       json
 // @Produce      json
 // @Success      200  {integer} integer 1
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404  {object}  httputil.HTTPError
-// @Failure      500  {object}  httputil.HTTPError
-// @Router       /games/all_players [get]
+// @Router       /api/games/all_players [get]
 func (h *GameHandler) GetAllPlayers(c *gin.Context) {
 	// TODO: выводит данные о всех игроках
 	stmt, err := h.DB.DataBase.Preparex("Select * From players")
@@ -55,15 +53,13 @@ func (h *GameHandler) GetAllPlayers(c *gin.Context) {
 
 }
 
+// AllGames godoc
 // @Summary      Get all games
 // @Tags         games
 // @Accept       json
 // @Produce      json
 // @Success      200  {integer} integer 1
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404  {object}  httputil.HTTPError
-// @Failure      500  {object}  httputil.HTTPError
-// @Router       /games/all_games [get]
+// @Router       /api/games/all_games [get]
 func (h *GameHandler) AllGames(c *gin.Context) {
 	// TODO: выводит данные о всех играх
 	stmt, err := h.DB.DataBase.Preparex("Select * From games")
@@ -92,6 +88,7 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 
 }
 
+// ResultGames godoc
 // @Summary      get games involving the player
 // @Description  get list by nicname
 // @Tags         games
@@ -99,10 +96,7 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 // @Produce      json
 // @Param        input  body string  true  "Player nickname"
 // @Success      200  {integer} integer 1
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404  {object}  httputil.HTTPError
-// @Failure      500  {object}  httputil.HTTPError
-// @Router       /games/all_players [get]
+// @Router       /api/games/results_games/:nickname [get]
 func (h *GameHandler) ResultGames(c *gin.Context) {
 	// TODO: выводит об играх футболиста, по его nickname
 	nickname := c.Param("nickname")
@@ -129,6 +123,12 @@ func (h *GameHandler) ResultGames(c *gin.Context) {
 
 }
 
+// GetPlayer godoc
+// @Summary Retrieves user based on given ID
+// @Produce json
+// @Param id path integer true "User Nickname"
+// @Success 200 {object} models.Player
+// @Router /api/games/get_player/:nickname [get]
 func (h *GameHandler) GetPlayer(c *gin.Context) {
 	// вывод данных о игроке
 	nickname := c.Param("nickname")

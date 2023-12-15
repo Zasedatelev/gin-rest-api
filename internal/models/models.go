@@ -10,25 +10,25 @@ import (
 )
 
 type MyNullString struct {
-	sql.NullString
+	value sql.NullString
 }
 
 type MyNullFloat64 struct {
-	sql.NullFloat64
+	value sql.NullFloat64
 }
 
 // убирает поле value: true/false при вывове sql.NullString
 func (s MyNullString) MarshalJSON() ([]byte, error) {
-	if s.Valid {
-		return json.Marshal(s.String)
+	if s.value.Valid {
+		return json.Marshal(s.value.String)
 	}
 	return []byte(`null`), nil
 }
 
 // Тоже с Float
 func (s MyNullFloat64) MarshalJSON() ([]byte, error) {
-	if s.Valid {
-		return json.Marshal(s.Float64)
+	if s.value.Valid {
+		return json.Marshal(s.value.Float64)
 	}
 	return []byte(`null`), nil
 }

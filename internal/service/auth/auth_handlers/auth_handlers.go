@@ -19,6 +19,16 @@ type AuthHandler struct {
 func NewAuthHandler(DB *repository.Repository) AuthHandler {
 	return AuthHandler{DB}
 }
+
+// RegistrUser godoc
+// @Summary      register user
+// @Description  post user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body string  true  "Player nickname"
+// @Success      200  {integer} integer 1
+// @Router       /auth/register/:nickname [post]
 func (a *AuthHandler) RegistrUser(c *gin.Context) {
 	payload := models.SingUpInput{}
 
@@ -57,6 +67,15 @@ func (a *AuthHandler) RegistrUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"lastId": rowId, "massege": "New user account registered"})
 }
 
+// Login godoc
+// @Summary      login user
+// @Description  login user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body string  true  "Player nickname"
+// @Success      200  {integer} integer 1
+// @Router       /api/auth/login [post]
 func (a *AuthHandler) Login(c *gin.Context) {
 	payload := models.SingInInput{}
 	config := config.LoadConfig()

@@ -8,6 +8,9 @@ import (
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth/auth_handlers"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var server *gin.Engine
@@ -21,7 +24,7 @@ func init() {
 // @description     Привет. Мой не большой проект для изучения програмирования API на Go.
 // @contact.name   Oleg Zasedatelev
 // @host      localhost:8080
-// @BasePath  /api
+// @BasePath /
 func main() {
 	repo := new(repository.Repository)
 	repo.Open()
@@ -33,13 +36,12 @@ func main() {
 	AuthRoutrer := routers.NewAuthRouteController(AuthHandler)
 
 	server = gin.Default()
-	// server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	router := server.Group("/api")
 
-	// docs.SwaggerInfo.BasePath = "/api"
+	router := server.Group("/api")
 
 	GameRouter.InitGameRouters(router)
 	AuthRoutrer.InitAuthRouters(router)
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	server.Run()
 
 }

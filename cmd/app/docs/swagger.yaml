@@ -1,4 +1,24 @@
-basePath: /api
+basePath: /
+definitions:
+  models.MyNullString:
+    type: object
+  models.Player:
+    properties:
+      citizenship:
+        $ref: '#/definitions/models.MyNullString'
+      dob:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      nickname:
+        type: string
+      playerId:
+        type: integer
+      role:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -6,5 +26,115 @@ info:
   description: Привет. Мой не большой проект для изучения програмирования API на Go.
   title: Test Golang API
   version: "1.20"
-paths: {}
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: Player nickname
+        in: body
+        name: input
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: login user
+      tags:
+      - auth
+  /api/games/all_games:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Get all games
+      tags:
+      - games
+  /api/games/all_players:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Get all players
+      tags:
+      - games
+  /api/games/get_player/:nickname:
+    get:
+      parameters:
+      - description: User Nickname
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Player'
+      summary: Retrieves user based on given ID
+  /api/games/results_games/:nickname:
+    get:
+      consumes:
+      - application/json
+      description: get list by nicname
+      parameters:
+      - description: Player nickname
+        in: body
+        name: input
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: get games involving the player
+      tags:
+      - games
+  /auth/register/:nickname:
+    post:
+      consumes:
+      - application/json
+      description: post user
+      parameters:
+      - description: Player nickname
+        in: body
+        name: input
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: register user
+      tags:
+      - auth
 swagger: "2.0"
