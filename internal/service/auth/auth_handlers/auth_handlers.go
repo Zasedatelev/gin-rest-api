@@ -3,6 +3,7 @@ package auth_handlers
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Oleg-OMON/gin-rest-api.git/config"
 	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
@@ -24,11 +25,11 @@ func NewAuthHandler(DB *repository.Repository) AuthHandler {
 // @Summary      register user
 // @Description  post user
 // @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        input  body string  true  "Player nickname"
-// @Success      200  {integer} integer 1
-// @Router       /auth/register/:nickname [post]
+// @Param        payload body models.SingUpInput true  "form data"
+// @Success 200 {string} string "OK"
+// @Success 400 {string} string "BAD REQUEST"
+// @Success 404 {string} string "NOT FOUND"
+// @Router       /auth/register [post]
 func (a *AuthHandler) RegistrUser(c *gin.Context) {
 	payload := models.SingUpInput{}
 
@@ -56,15 +57,19 @@ func (a *AuthHandler) RegistrUser(c *gin.Context) {
 		return
 	}
 
-	result, err := stmt.Exec(payload.Name, strings.ToLower(payload.Email), hashPass)
+	_, err = stmt.Exec(payload.Name, strings.ToLower(payload.Email), hashPass)
 	if err != nil {
-		log.Error(err)
+		log.WithError(err).Error("ОШИБКА ПРИ РЕГИСТРАЦИИ")
 		c.JSON(http.StatusConflict, gin.H{"message": err})
+	} else {
+		log.WithFields(log.Fields{
+			"user":    payload.Name,
+			"created": time.Now(),
+		}).Info("НОВЫЙ ПОЛЬЗОВАТЕЛЬ ДОБАВЛЕН")
+		c.JSON(http.StatusCreated, gin.H{"massege": "New user account registered"})
 		return
 	}
-	rowId, err := result.LastInsertId()
 
-	c.JSON(http.StatusCreated, gin.H{"lastId": rowId, "massege": "New user account registered"})
 }
 
 // Login godoc
@@ -73,8 +78,10 @@ func (a *AuthHandler) RegistrUser(c *gin.Context) {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        input  body string  true  "Player nickname"
-// @Success      200  {integer} integer 1
+// @Param        payload body models.SingInInput true  "form data"
+// @Success 200 {string} string "OK"
+// @Success 400 {string} string "BAD REQUEST"
+// @Success 404 {string} string "NOT FOUND"
 // @Router       /api/auth/login [post]
 func (a *AuthHandler) Login(c *gin.Context) {
 	payload := models.SingInInput{}
@@ -88,9 +95,8 @@ func (a *AuthHandler) Login(c *gin.Context) {
 	user := models.User{}
 
 	err := a.DB.DataBase.Get(&user, `SELECT * FROM users WHERE name = $1`, payload.Name)
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or Password"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid name or password"})
 		return
 	}
 
@@ -101,11 +107,14 @@ func (a *AuthHandler) Login(c *gin.Context) {
 
 	token, err := utils.GenerateToken(config.JWT.AccessTokenExpireDuration, user.ID, config.JWT.Secret)
 	if err != nil {
+		log.WithError(err).Error("ОШИБКА ПРИ ГЕНЕРАЦИИ ТОКЕНА")
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	c.SetCookie("token", token, 60, "/", "localhost", false, true)
-
+	log.WithFields(log.Fields{
+		"in": time.Now(),
+	}).Info("ВХОД ВЫПОЛНЕН")
 	c.JSON(http.StatusOK, gin.H{"status": "success", "token": token})
 }

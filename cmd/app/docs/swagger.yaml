@@ -1,11 +1,24 @@
 basePath: /
 definitions:
-  models.MyNullString:
+  github_com_Oleg-OMON_gin-rest-api_git_internal_models.Game:
+    properties:
+      city:
+        $ref: '#/definitions/null.String'
+      gameDate:
+        type: string
+      gameId:
+        type: integer
+      goals:
+        $ref: '#/definitions/null.Uint'
+      own:
+        $ref: '#/definitions/null.Uint'
+      team:
+        type: string
     type: object
-  models.Player:
+  github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player:
     properties:
       citizenship:
-        $ref: '#/definitions/models.MyNullString'
+        $ref: '#/definitions/sql.NullString'
       dob:
         type: string
       firstName:
@@ -18,6 +31,72 @@ definitions:
         type: integer
       role:
         type: string
+    type: object
+  github_com_Oleg-OMON_gin-rest-api_git_internal_models.ResultModelsPlayerLineup:
+    properties:
+      cards:
+        $ref: '#/definitions/null.String'
+      goals:
+        $ref: '#/definitions/null.Uint'
+      nickname:
+        description: Тут нужна композиция что бы не дублировать поля, а просто ссылать
+          на их тип?
+        type: string
+      start:
+        type: string
+      team:
+        type: string
+      timeIn:
+        $ref: '#/definitions/null.Float64'
+    type: object
+  github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingInInput:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      passwordConfirm:
+        type: string
+    type: object
+  null.Float64:
+    properties:
+      float64:
+        type: number
+      valid:
+        description: Valid is true if Float64 is not NULL
+        type: boolean
+    type: object
+  null.String:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
+  null.Uint:
+    properties:
+      uint:
+        type: integer
+      valid:
+        type: boolean
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -33,19 +112,27 @@ paths:
       - application/json
       description: login user
       parameters:
-      - description: Player nickname
+      - description: form data
         in: body
-        name: input
+        name: payload
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: integer
+            type: string
+        "400":
+          description: BAD REQUEST
+          schema:
+            type: string
+        "404":
+          description: NOT FOUND
+          schema:
+            type: string
       summary: login user
       tags:
       - auth
@@ -59,7 +146,9 @@ paths:
         "200":
           description: OK
           schema:
-            type: integer
+            items:
+              $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Game'
+            type: array
       summary: Get all games
       tags:
       - games
@@ -73,67 +162,72 @@ paths:
         "200":
           description: OK
           schema:
-            type: integer
+            items:
+              $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player'
+            type: array
       summary: Get all players
       tags:
       - games
-  /api/games/get_player/:nickname:
+  /api/games/get_player/{nickname}:
     get:
       parameters:
-      - description: User Nickname
+      - description: player nickname
         in: path
-        name: id
+        name: nickname
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Player'
-      summary: Retrieves user based on given ID
-  /api/games/results_games/:nickname:
+            $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player'
+      summary: Retrieves user based on given name
+  /api/games/results_games/{nickname}:
     get:
       consumes:
       - application/json
-      description: get list by nicname
+      description: get list by nickname
       parameters:
-      - description: Player nickname
-        in: body
-        name: input
+      - description: player nickname
+        in: path
+        name: nickname
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: integer
+            $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.ResultModelsPlayerLineup'
       summary: get games involving the player
       tags:
       - games
-  /auth/register/:nickname:
+  /auth/register:
     post:
-      consumes:
-      - application/json
       description: post user
       parameters:
-      - description: Player nickname
+      - description: form data
         in: body
-        name: input
+        name: payload
         required: true
         schema:
-          type: string
-      produces:
-      - application/json
+          $ref: '#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingUpInput'
       responses:
         "200":
           description: OK
           schema:
-            type: integer
+            type: string
+        "400":
+          description: BAD REQUEST
+          schema:
+            type: string
+        "404":
+          description: NOT FOUND
+          schema:
+            type: string
       summary: register user
       tags:
       - auth

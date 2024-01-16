@@ -18,11 +18,11 @@ func (s *Repository) Open() error {
 	db, err := sqlx.Connect("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
 		config.Postgres.User, config.Postgres.Password, config.Postgres.DbName, config.Postgres.SSlMode))
 	if err != nil {
-		log.Error(err)
+		log.WithError(err).Error("ОШИБКА В ПОДКЛБЮЧЕНИИ К БАЗЕ ДАННЫХ")
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Error(err)
+		log.WithError(err).Error("СОЕДИНЕНИЕ НЕ УСТАНОВЛЕНО")
 	}
 	s.DataBase = db
 	return nil

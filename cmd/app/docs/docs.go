@@ -32,12 +32,12 @@ const docTemplate = `{
                 "summary": "login user",
                 "parameters": [
                     {
-                        "description": "Player nickname",
-                        "name": "input",
+                        "description": "form data",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingInInput"
                         }
                     }
                 ],
@@ -45,7 +45,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "BAD REQUEST",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -67,7 +79,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Game"
+                            }
                         }
                     }
                 }
@@ -89,23 +104,26 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/games/get_player/:nickname": {
+        "/api/games/get_player/{nickname}": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves user based on given ID",
+                "summary": "Retrieves user based on given name",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User Nickname",
-                        "name": "id",
+                        "type": "string",
+                        "description": "player nickname",
+                        "name": "nickname",
                         "in": "path",
                         "required": true
                     }
@@ -114,15 +132,15 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Player"
+                            "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player"
                         }
                     }
                 }
             }
         },
-        "/api/games/results_games/:nickname": {
+        "/api/games/results_games/{nickname}": {
             "get": {
-                "description": "get list by nicname",
+                "description": "get list by nickname",
                 "consumes": [
                     "application/json"
                 ],
@@ -135,46 +153,38 @@ const docTemplate = `{
                 "summary": "get games involving the player",
                 "parameters": [
                     {
-                        "description": "Player nickname",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "type": "string",
+                        "description": "player nickname",
+                        "name": "nickname",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.ResultModelsPlayerLineup"
                         }
                     }
                 }
             }
         },
-        "/auth/register/:nickname": {
+        "/auth/register": {
             "post": {
                 "description": "post user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
                 "summary": "register user",
                 "parameters": [
                     {
-                        "description": "Player nickname",
-                        "name": "input",
+                        "description": "form data",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingUpInput"
                         }
                     }
                 ],
@@ -182,7 +192,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "BAD REQUEST",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -190,14 +212,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.MyNullString": {
-            "type": "object"
+        "github_com_Oleg-OMON_gin-rest-api_git_internal_models.Game": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "$ref": "#/definitions/null.String"
+                },
+                "gameDate": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "integer"
+                },
+                "goals": {
+                    "$ref": "#/definitions/null.Uint"
+                },
+                "own": {
+                    "$ref": "#/definitions/null.Uint"
+                },
+                "team": {
+                    "type": "string"
+                }
+            }
         },
-        "models.Player": {
+        "github_com_Oleg-OMON_gin-rest-api_git_internal_models.Player": {
             "type": "object",
             "properties": {
                 "citizenship": {
-                    "$ref": "#/definitions/models.MyNullString"
+                    "$ref": "#/definitions/sql.NullString"
                 },
                 "dob": {
                     "type": "string"
@@ -216,6 +258,105 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_Oleg-OMON_gin-rest-api_git_internal_models.ResultModelsPlayerLineup": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "$ref": "#/definitions/null.String"
+                },
+                "goals": {
+                    "$ref": "#/definitions/null.Uint"
+                },
+                "nickname": {
+                    "description": "Тут нужна композиция что бы не дублировать поля, а просто ссылать на их тип?",
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "team": {
+                    "type": "string"
+                },
+                "timeIn": {
+                    "$ref": "#/definitions/null.Float64"
+                }
+            }
+        },
+        "github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingInInput": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Oleg-OMON_gin-rest-api_git_internal_models.SingUpInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "passwordConfirm": {
+                    "type": "string"
+                }
+            }
+        },
+        "null.Float64": {
+            "type": "object",
+            "properties": {
+                "float64": {
+                    "type": "number"
+                },
+                "valid": {
+                    "description": "Valid is true if Float64 is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "null.String": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if String is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "null.Uint": {
+            "type": "object",
+            "properties": {
+                "uint": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "sql.NullString": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if String is not NULL",
+                    "type": "boolean"
                 }
             }
         }
