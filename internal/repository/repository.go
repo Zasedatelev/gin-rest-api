@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 
-	"github.com/Oleg-OMON/gin-rest-api.git/config"
+	"github.com/Zasedatelev/gin-rest-api.git/config"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 )
@@ -15,8 +15,8 @@ type Repository struct {
 func (s *Repository) Open() error {
 	config := config.LoadConfig()
 
-	db, err := sqlx.Connect("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
-		config.Postgres.User, config.Postgres.Password, config.Postgres.DbName, config.Postgres.SSlMode))
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		config.Postgres.Host, config.Postgres.Port, config.Postgres.User, config.Postgres.Password, config.Postgres.DbName, config.Postgres.SSlMode))
 	if err != nil {
 		log.WithError(err).Error("ОШИБКА В ПОДКЛБЮЧЕНИИ К БАЗЕ ДАННЫХ")
 	}

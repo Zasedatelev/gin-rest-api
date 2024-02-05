@@ -1,9 +1,9 @@
 package routers
 
 import (
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/handlers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/middleware"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth/auth_handlers"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/handlers"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/middleware"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/service/auth/auth_handlers"
 	"github.com/gin-gonic/gin"
 )
 

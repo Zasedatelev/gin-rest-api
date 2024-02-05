@@ -1,4 +1,4 @@
-module github.com/Oleg-OMON/gin-rest-api.git
+module github.com/Zasedatelev/gin-rest-api.git
 
 go 1.20
 

@@ -1,11 +1,11 @@
 package main
 
 import (
-	_ "github.com/Oleg-OMON/gin-rest-api.git/cmd/app/docs"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/handlers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/routers"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/service/auth/auth_handlers"
+	_ "github.com/Zasedatelev/gin-rest-api.git/cmd/app/docs"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/handlers"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/repository"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/routers"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/service/auth/auth_handlers"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 

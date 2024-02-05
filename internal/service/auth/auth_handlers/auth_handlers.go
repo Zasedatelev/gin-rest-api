@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Oleg-OMON/gin-rest-api.git/config"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/utils"
+	"github.com/Zasedatelev/gin-rest-api.git/config"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/models"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/repository"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/utils"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )

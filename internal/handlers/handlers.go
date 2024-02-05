@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/models"
-	"github.com/Oleg-OMON/gin-rest-api.git/internal/repository"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/cache"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/models"
+	"github.com/Zasedatelev/gin-rest-api.git/internal/repository"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,6 +19,8 @@ type GameHandler struct {
 func NewGameHandler(DB *repository.Repository) GameHandler {
 	return GameHandler{DB}
 }
+
+var lru = cache.NewLRU(10)
 
 // GetAllPlayers godoc
 // @Summary      Get all players
@@ -68,6 +72,7 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+
 	data, err := stmt.Queryx()
 	if err != nil {
 		panic(err)
@@ -106,29 +111,36 @@ func (h *GameHandler) AllGames(c *gin.Context) {
 func (h *GameHandler) ResultGames(c *gin.Context) {
 	// TODO: выводит данные об играх футболиста, по его nickname
 	nickname := c.Param("nickname")
-	rows, err := h.DB.DataBase.Query(`SELECT p.nickname, g.team, c.start, c.time_in, c.goals, c.cards FROM lineups c, players p, games g  WHERE c.player_id = p.player_id AND c.game_id = g.game_id AND p.nickname = $1`, nickname)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer rows.Close()
-
-	results := []models.ResultModelsPlayerLineup{}
-
-	for rows.Next() {
-		r := models.ResultModelsPlayerLineup{}
-		err := rows.Scan(&r.Nickname, &r.Team, &r.Start, &r.TimeIn, &r.Goals, &r.Cards)
+	ans := lru.Get(nickname + "RG")
+	if ans == nil {
+		rows, err := h.DB.DataBase.Query(`SELECT p.nickname, g.team, c.start, c.time_in, c.goals, c.cards FROM lineups c, players p, games g  WHERE c.player_id = p.player_id AND c.game_id = g.game_id AND p.nickname = $1`, nickname)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				log.Debug(err)
-			} else {
-				log.Debug(err)
-			}
-			continue
+			log.Fatal(err)
 		}
-		results = append(results, r)
+
+		defer rows.Close()
+
+		results := []models.ResultModelsPlayerLineup{}
+
+		for rows.Next() {
+			r := models.ResultModelsPlayerLineup{}
+			err := rows.Scan(&r.Nickname, &r.Team, &r.Start, &r.TimeIn, &r.Goals, &r.Cards)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					log.Debug(err)
+				} else {
+					log.Debug(err)
+				}
+				continue
+			}
+			results = append(results, r)
+		}
+		c.IndentedJSON(http.StatusOK, results)
+		lru.Set(nickname+"RG", results)
+		log.Infof("CACHE SIZE: %d", lru.GetLenQueue())
+		fmt.Println(lru.GetQueue())
 	}
-	c.IndentedJSON(http.StatusOK, results)
+	c.IndentedJSON(http.StatusOK, ans)
 
 }
 
@@ -141,28 +153,35 @@ func (h *GameHandler) ResultGames(c *gin.Context) {
 func (h *GameHandler) GetPlayer(c *gin.Context) {
 	// вывод данных о игроке
 	nickname := c.Param("nickname")
-	stmt, err := h.DB.DataBase.Preparex(`SELECT * FROM players WHERE nickname = $1`)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer stmt.Close()
-
-	result := []models.Player{}
-	rows, err := stmt.Queryx(nickname)
-	for rows.Next() {
-		player := models.Player{}
-		err = rows.Scan(&player.PlayerId, &player.FirstName, &player.LastName, &player.Nickname, &player.Citizenship, &player.Dob, &player.Role)
+	ans := lru.Get(nickname)
+	if ans == nil {
+		stmt, err := h.DB.DataBase.Preparex(`SELECT * FROM players WHERE nickname = $1`)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				log.WithError(err).Error("ВОЗВРАЩАЕМЫЕ ДАННЫЕ НЕ ЯВЛЯЮТЬСЯ СТРОКОЙ")
-			} else {
-				log.WithError(err).Debug("ДАННЫЕ НЕ НАЙДЕНЫ")
-			}
-			continue
+			log.Panic(err)
 		}
+		defer stmt.Close()
 
-		result = append(result, player)
+		result := []models.Player{}
+		rows, err := stmt.Queryx(nickname)
+		for rows.Next() {
+			player := models.Player{}
+			err = rows.Scan(&player.PlayerId, &player.FirstName, &player.LastName, &player.Nickname, &player.Citizenship, &player.Dob, &player.Role)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					log.WithError(err).Error("ВОЗВРАЩАЕМЫЕ ДАННЫЕ НЕ ЯВЛЯЮТЬСЯ СТРОКОЙ")
+				} else {
+					log.WithError(err).Debug("ДАННЫЕ НЕ НАЙДЕНЫ")
+				}
+				continue
+			}
+
+			result = append(result, player)
+			lru.Set(nickname, player)
+			log.Infof("CACHE SIZE: %d", lru.GetLenQueue())
+		}
+		c.IndentedJSON(http.StatusOK, result)
+
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	c.IndentedJSON(http.StatusOK, ans)
 }

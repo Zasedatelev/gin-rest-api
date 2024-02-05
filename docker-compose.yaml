@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  gin-rest-api:
+    build: ./
+    command: ./wait-for-postgres.sh db ./gin-rest-api
+    ports:
+      - 8080
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_PASSWORD=260616
+      - POSTGRES_DB=go_test
+
+
+  db:
+      restart: always
+      image: postgres:latest
+      volumes:
+        - ./.database/postgres/data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_PASSWORD=260616
+        - POSTGRES_DB=go_test
+      ports:
+        - 5436:5432

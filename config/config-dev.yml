@@ -1,8 +1,10 @@
 postgres:
+  host: "localhost"
+  port: 5432
   user: "postgres"
   password: "260616"
   dbName: "go_test"
-  sslMode: "disable"
+  sslMode: "disable" 
 
 server:
   internalPort: 8080

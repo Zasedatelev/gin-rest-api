@@ -19,6 +19,8 @@ type ServerConfig struct {
 }
 
 type PostgresConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	DbName   string `yaml:"dbName"`
@@ -38,6 +40,8 @@ func NewConfig() *Config {
 			InternalPort: 8080,
 		},
 		Postgres: PostgresConfig{
+			Host:     "",
+			Port:     "",
 			User:     "",
 			Password: "",
 			DbName:   "",
