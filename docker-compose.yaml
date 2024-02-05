@@ -9,17 +9,18 @@ services:
     depends_on:
       - db
     environment:
-      - POSTGRES_PASSWORD=260616
-      - POSTGRES_DB=go_test
+      POSTGRES_PASSWORD: 260616
 
 
   db:
       restart: always
       image: postgres:latest
-      volumes:
-        - ./.database/postgres/data:/var/lib/postgresql/data
       environment:
-        - POSTGRES_PASSWORD=260616
-        - POSTGRES_DB=go_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 260616
+        POSTGRES_DB: go_test
+        PGDATA: /var/lib/postgresql/data/pgdata
+      volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/football_script.sql 
       ports:
         - 5436:5432

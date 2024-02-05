@@ -1,4 +1,14 @@
 ﻿drop table if exists Lineups; drop table if exists Games; drop table if exists Players;
+CREATE DATABASE go_test;
+
+
+create table Users(
+    id uuid primary key default gen_random_uuid(),
+    name varchar(10),
+    email varchar(78),
+    password text 
+);
+
 
 create table Players(
 player_id int primary key, -- номер на футболке
